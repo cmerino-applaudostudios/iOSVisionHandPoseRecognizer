@@ -10,6 +10,7 @@ This class is a state machine that transitions between states based on pair
 */
 
 import CoreGraphics
+import UIKit
 
 class HandGestureProcessor {
     enum State {
@@ -75,6 +76,25 @@ extension CGPoint {
     
     func distance(from point: CGPoint) -> CGFloat {
         return hypot(point.x - x, point.y - y)
+    }
+    
+    func isPointInsideOf(polygon: [CGPoint]) -> Bool {
+        if polygon.count <= 1 {
+            return false
+        }
+
+        var p = UIBezierPath()
+        let firstPoint = polygon[0] as CGPoint
+
+        p.move(to: firstPoint)
+
+        for index in 1...polygon.count-1 {
+            p.addLine(to: polygon[index] as CGPoint)
+        }
+
+        p.close()
+
+        return p.contains(self)
     }
 }
 
