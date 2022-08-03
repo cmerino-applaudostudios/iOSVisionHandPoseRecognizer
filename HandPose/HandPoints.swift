@@ -13,6 +13,21 @@ import AVFoundation
 
 enum FingerName: String {
     case index, middle, ring, little, thumb
+    
+    var vnJointName: [VNHumanHandPoseObservation.JointName] {
+        switch self {
+        case .index:
+            return [.indexTip, .indexMCP, .indexPIP, .indexDIP]
+        case .middle:
+            return [.middleTip, .middleMCP, .middlePIP, .middleDIP]
+        case .ring:
+            return [.ringTip, .ringMCP, .ringPIP, .ringDIP]
+        case .little:
+            return [.littleTip, .littleMCP, .littlePIP, .littleDIP]
+        case .thumb:
+            return [.thumbTip, .thumbCMC, .thumbMP, .thumbIP]
+        }
+    }
 }
 
 struct AVFoundationPoint {
@@ -46,11 +61,10 @@ extension FingerPoints {
     init(with recognizedPoints: [VNHumanHandPoseObservation.JointName : VNRecognizedPoint],
          translatedToLayer layer: AVCaptureVideoPreviewLayer, fingerName: FingerName) {
         self.fingerName = fingerName
-        let keys = Array(recognizedPoints.keys)
-        let tip = layer.layerPointConverted(fromCaptureDevicePoint: AVFoundationPoint(with: recognizedPoints[keys[0]]).point)
-        let mcp = layer.layerPointConverted(fromCaptureDevicePoint: AVFoundationPoint(with: recognizedPoints[keys[1]]).point)
-        let pip = layer.layerPointConverted(fromCaptureDevicePoint: AVFoundationPoint(with: recognizedPoints[keys[2]]).point)
-        let dip = layer.layerPointConverted(fromCaptureDevicePoint: AVFoundationPoint(with: recognizedPoints[keys[3]]).point)
+        let tip = layer.layerPointConverted(fromCaptureDevicePoint: AVFoundationPoint(with: recognizedPoints[fingerName.vnJointName[0]]).point)
+        let mcp = layer.layerPointConverted(fromCaptureDevicePoint: AVFoundationPoint(with: recognizedPoints[fingerName.vnJointName[1]]).point)
+        let pip = layer.layerPointConverted(fromCaptureDevicePoint: AVFoundationPoint(with: recognizedPoints[fingerName.vnJointName[2]]).point)
+        let dip = layer.layerPointConverted(fromCaptureDevicePoint: AVFoundationPoint(with: recognizedPoints[fingerName.vnJointName[3]]).point)
         self.tipPoint = tip == .zero ? nil : tip
         self.mcpPoint = mcp == .zero ? nil : mcp
         self.pipPoint = pip == .zero ? nil : pip
@@ -89,6 +103,21 @@ struct HandPointsBuilder {
         }
         
         return points
+    }
+    
+    func getPalmArea() -> [CGPoint] {
+        var points: [CGPoint?] = []
+        
+        points.append(contentsOf: [ indexFinger?.mcpPoint,
+                                    middleFinger?.mcpPoint,
+                                    ringFinger?.mcpPoint,
+                                    littleFinger?.mcpPoint,
+                                    thumbFinger?.mcpPoint,
+                                    thumbFinger?.mcpPoint,
+                                    wrist?.point
+        ])
+        
+        return points.compactMap { $0 }
     }
 }
 

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		07A8818C2899ECA400BFE1CB /* HandStateProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A8818B2899ECA400BFE1CB /* HandStateProcessor.swift */; };
 		07BA50BD287CEA180052EE0B /* HandPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BA50BC287CEA180052EE0B /* HandPoints.swift */; };
 		C475655D248AEBD900F111B8 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C475655A248AEBD800F111B8 /* CameraView.swift */; };
 		C475655E248AEBD900F111B8 /* HandGestureProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C475655B248AEBD800F111B8 /* HandGestureProcessor.swift */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		07A8818B2899ECA400BFE1CB /* HandStateProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandStateProcessor.swift; sourceTree = "<group>"; };
 		07BA50BC287CEA180052EE0B /* HandPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandPoints.swift; sourceTree = "<group>"; };
 		131D672E55F74A60D83C1534 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		26547FACF06954AF783E23D9 /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
@@ -96,6 +98,7 @@
 				C4756560248AEC4100F111B8 /* HandPose.entitlements */,
 				C4EB82F8248AEB7B00CD7D41 /* Info.plist */,
 				07BA50BC287CEA180052EE0B /* HandPoints.swift */,
+				07A8818B2899ECA400BFE1CB /* HandStateProcessor.swift */,
 			);
 			path = HandPose;
 			sourceTree = "<group>";
@@ -172,6 +175,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C475655E248AEBD900F111B8 /* HandGestureProcessor.swift in Sources */,
+				07A8818C2899ECA400BFE1CB /* HandStateProcessor.swift in Sources */,
 				C4EB82EB248AEB7B00CD7D41 /* AppDelegate.swift in Sources */,
 				C4EB82ED248AEB7B00CD7D41 /* SceneDelegate.swift in Sources */,
 				07BA50BD287CEA180052EE0B /* HandPoints.swift in Sources */,
