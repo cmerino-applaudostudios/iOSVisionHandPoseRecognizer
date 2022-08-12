@@ -108,12 +108,12 @@ struct HandPointsBuilder {
     func getPalmArea() -> [CGPoint] {
         var points: [CGPoint?] = []
         
-        points.append(contentsOf: [ indexFinger?.mcpPoint,
-                                    middleFinger?.mcpPoint,
-                                    ringFinger?.mcpPoint,
-                                    littleFinger?.mcpPoint,
+        points.append(contentsOf: [ indexFinger?.pipPoint,
+                                    middleFinger?.pipPoint,
+                                    ringFinger?.pipPoint,
+                                    littleFinger?.pipPoint,
                                     thumbFinger?.mcpPoint,
-                                    thumbFinger?.mcpPoint,
+                                    thumbFinger?.pipPoint,
                                     wrist?.point
         ])
         
