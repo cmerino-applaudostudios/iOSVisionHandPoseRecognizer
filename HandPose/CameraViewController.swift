@@ -8,6 +8,7 @@
 import UIKit
 import AVFoundation
 import Vision
+import Combine
 
 class CameraViewController: UIViewController {
     
@@ -16,13 +17,16 @@ class CameraViewController: UIViewController {
     private let videoDataOutputQueue = DispatchQueue(label: "CameraFeedDataOutput", qos: .userInteractive)
     private var cameraFeedSession: AVCaptureSession?
     private var handPoseRequest = VNDetectHumanHandPoseRequest()
+    private var handPose: HandPose = .openHand
     
+    private let handStateProcessor = HandStateProcessor()
     private let drawOverlay = CAShapeLayer()
     private let drawPath = UIBezierPath()
     private var evidenceBuffer = [HandGestureProcessor.PointsPair]()
     private var lastDrawPoint: CGPoint?
     private var isFirstSegment = true
     private var lastObservationTimestamp = Date()
+    private var cancellables: Set<AnyCancellable> = .init()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,6 +36,7 @@ class CameraViewController: UIViewController {
         drawOverlay.fillColor = #colorLiteral(red: 0.9999018312, green: 1, blue: 0.9998798966, alpha: 0).cgColor
         view.layer.addSublayer(drawOverlay)
         handPoseRequest.maximumHandCount = 1
+        bindProcessor()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -51,6 +56,16 @@ class CameraViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         cameraFeedSession?.stopRunning()
         super.viewWillDisappear(animated)
+    }
+    
+    private func bindProcessor() {
+        handStateProcessor.handStateResult
+            .throttle(for: 0.2, scheduler: RunLoop.main, latest: true)
+            .sink(receiveValue: { [weak self] value in
+                self?.handPose = value
+                // Debug
+                print("\(value.stringEmoji)")
+            }).store(in: &cancellables)
     }
     
     func setupAVSession() throws {
@@ -102,9 +117,8 @@ extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
                 let previewLayer = cameraView.previewLayer
                 let handPoints = HandPointsBuilder(with: observation, translateTo: previewLayer)
                 self.cameraView.showPoints(handPoints.getAllHandPoints(), color: .green)
-                print(HandStateProcessor(handPoints: handPoints).getHandPose().stringEmoji)
+                self.handStateProcessor.updatePoints(handPoints: handPoints)
             }
-
         } catch {
             cameraFeedSession?.stopRunning()
             let error = AppError.visionError(error: error)
