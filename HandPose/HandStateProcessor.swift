@@ -12,6 +12,43 @@ import UIKit
 enum FingerPositionState {
     case close
     case extended
+    
+    var isExtended: Bool {
+        return self == .extended
+    }
+    
+    var isClose: Bool {
+        return self == .close
+    }
+}
+
+enum HandPose {
+    case openHand
+    case victoryHand
+    case loveYouGesture
+    case signOfHornGesture
+    case callMeHand
+    case indexPointing
+    case fist
+    
+    var stringEmoji: String {
+        switch self {
+        case .openHand:
+            return "✋"
+        case .victoryHand:
+            return "✌️"
+        case .loveYouGesture:
+            return "🤟"
+        case .signOfHornGesture:
+            return "🤘"
+        case .callMeHand:
+            return "🤙"
+        case .indexPointing:
+            return "☝️"
+        case .fist:
+            return "✊"
+        }
+    }
 }
 
 struct HandStateProcessor: CustomStringConvertible {
@@ -60,5 +97,5 @@ func getFingerState(tipPoint: CGPoint?, palmArea: [CGPoint]) -> FingerPositionSt
         return .extended
     }
     
-    return tipPoint.isPointInsideOf(polygon: palmArea) ? .close : .extended
+    return tipPoint.isInsidePolygon(vertices: palmArea) ? .close : .extended
 }
