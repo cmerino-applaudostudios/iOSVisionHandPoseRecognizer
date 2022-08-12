@@ -32,6 +32,27 @@ struct HandStateProcessor: CustomStringConvertible {
         self.littleState = getFingerState(tipPoint: handPoints.littleFinger?.tipPoint, palmArea: handPoints.getPalmArea())
         self.thumbState = getFingerState(tipPoint: handPoints.thumbFinger?.tipPoint, palmArea: handPoints.getPalmArea())
     }
+    
+    func getEmoji() -> String {
+        switch (thumbState, indexState, middleState, ringState, littleState) {
+        case (.extended, .extended, .extended, .extended, .extended):
+            return "✋🏻"
+        case (.close, .close, .close, .close, .close):
+            return "✊🏻"
+        case (.extended, .extended, .close, .close, .extended):
+            return "🤟🏻"
+        case (.close, .extended, .close, .close, .extended):
+            return "🤘🏻"
+        case (.close, .extended, .extended, .close, .close):
+            return "✌🏻"
+        case (.extended, .close, .close, .close, .extended):
+            return "🤙🏻"
+        case (.close, .extended, .close, .close, .close):
+            return "☝🏻"
+        default:
+            return ""
+        }
+    }
 }
 
 func getFingerState(tipPoint: CGPoint?, palmArea: [CGPoint]) -> FingerPositionState {

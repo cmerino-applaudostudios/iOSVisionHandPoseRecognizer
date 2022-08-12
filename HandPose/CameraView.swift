@@ -58,13 +58,13 @@ class CameraView: UIView {
         CATransaction.commit()
     }
     
-    func showHandArea(_ points: HandArea, color: UIColor) {
+    func showHandArea(_ points: HandArea, color: UIColor, emoji: String) {
         CATransaction.begin()
         detectionOverlay.sublayers = nil
         let widthLayer = abs(Int(points.thumbFinger?.x ?? 0) - Int(points.littleFinger?.x ?? 0))
         let heightLayer = abs(Int(points.thumbFinger?.x ?? 0) - Int(points.littleFinger?.x ?? 0))
         let xShapeLayer = Int(points.thumbFinger?.x ?? 0) > Int(points.littleFinger?.x ?? 0) ? points.littleFinger?.x : points.thumbFinger?.x
-        let shapeLayer = createTextLayer(CGRect(x: xShapeLayer ?? 0, y: points.middleFinger?.y ?? 0, width: CGFloat(widthLayer), height: CGFloat(heightLayer)))
+        let shapeLayer = createTextLayer(CGRect(x: xShapeLayer ?? 0, y: points.middleFinger?.y ?? 0, width: CGFloat(widthLayer), height: CGFloat(heightLayer)), with: emoji)
         detectionOverlay.addSublayer(shapeLayer)
         CATransaction.commit()
     }
@@ -81,10 +81,10 @@ class CameraView: UIView {
     }
     
     // This fuction create the text layer that contains the emoji
-    func createTextLayer(_ bounds: CGRect) -> CATextLayer {
+    func createTextLayer(_ bounds: CGRect, with emoji: String) -> CATextLayer {
         let shapeLayer = CATextLayer()
         let emojiRect = CGRect(origin: CGPoint(x: bounds.origin.x, y: bounds.origin.y - 50), size: CGSize(width: bounds.size.width, height: bounds.size.height + 50))
-        shapeLayer.string = "🤚🏻"
+        shapeLayer.string = emoji
         shapeLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
         shapeLayer.fontSize = bounds.size.width
         shapeLayer.frame = emojiRect

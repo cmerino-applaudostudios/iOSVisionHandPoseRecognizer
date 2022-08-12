@@ -101,8 +101,9 @@ extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
             DispatchQueue.main.sync {
                 let previewLayer = cameraView.previewLayer
                 let handPoints = HandPointsBuilder(with: observation, translateTo: previewLayer)
+                let handProcessed = HandStateProcessor(handPoints: handPoints)
                 self.cameraView.showPoints(handPoints.getAllHandPoints(), color: .green)
-                self.cameraView.showHandArea(handPoints.getHandArea(), color: .red)
+                self.cameraView.showHandArea(handPoints.getHandArea(), color: .red, emoji: handProcessed.getEmoji())
                 print(HandStateProcessor(handPoints: handPoints))
             }
 

@@ -62,6 +62,10 @@ struct HandArea {
     var middleFinger: CGPoint?
     var littleFinger: CGPoint?
     var wrist: CGPoint?
+    
+    func getArrayPoints() -> [CGPoint?] {
+        [thumbFinger, middleFinger, littleFinger, wrist]
+    }
 }
 
 extension FingerPoints {
