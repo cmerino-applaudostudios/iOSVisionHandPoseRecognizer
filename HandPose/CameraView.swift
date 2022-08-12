@@ -14,6 +14,7 @@ class CameraView: UIView {
     private var overlayLayer = CAShapeLayer()
     private var pointsPath = UIBezierPath()
     private var detectionOverlay = CAShapeLayer()
+    private var previousHandFrame = CGRect()
 
     var previewLayer: AVCaptureVideoPreviewLayer {
         return layer as! AVCaptureVideoPreviewLayer
@@ -58,13 +59,13 @@ class CameraView: UIView {
         CATransaction.commit()
     }
     
-    func showHandArea(_ points: HandArea, color: UIColor, emoji: String) {
+    func showHandArea(_ points: HandArea, color: UIColor, emoji: HandPose, updateAreaSize: Bool) {
         CATransaction.begin()
         detectionOverlay.sublayers = nil
         let widthLayer = abs(Int(points.thumbFinger?.x ?? 0) - Int(points.littleFinger?.x ?? 0))
         let heightLayer = abs(Int(points.thumbFinger?.x ?? 0) - Int(points.littleFinger?.x ?? 0))
         let xShapeLayer = Int(points.thumbFinger?.x ?? 0) > Int(points.littleFinger?.x ?? 0) ? points.littleFinger?.x : points.thumbFinger?.x
-        let shapeLayer = createTextLayer(CGRect(x: xShapeLayer ?? 0, y: points.middleFinger?.y ?? 0, width: CGFloat(widthLayer), height: CGFloat(heightLayer)), with: emoji)
+        let shapeLayer = createTextLayer(CGRect(x: xShapeLayer ?? 0, y: points.middleFinger?.y ?? 0, width: CGFloat(widthLayer), height: CGFloat(heightLayer)), with: emoji, updateAreaSize: updateAreaSize)
         detectionOverlay.addSublayer(shapeLayer)
         CATransaction.commit()
     }
@@ -81,13 +82,19 @@ class CameraView: UIView {
     }
     
     // This fuction create the text layer that contains the emoji
-    func createTextLayer(_ bounds: CGRect, with emoji: String) -> CATextLayer {
+    func createTextLayer(_ bounds: CGRect, with emoji: HandPose, updateAreaSize: Bool) -> CATextLayer {
         let shapeLayer = CATextLayer()
         let emojiRect = CGRect(origin: CGPoint(x: bounds.origin.x, y: bounds.origin.y - 50), size: CGSize(width: bounds.size.width, height: bounds.size.height + 50))
-        shapeLayer.string = emoji
-        shapeLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
+        shapeLayer.string = emoji.stringEmoji
+        shapeLayer.position = updateAreaSize ? CGPoint(x: bounds.midX, y: bounds.midY) : CGPoint(x: bounds.midX, y: bounds.midY)
         shapeLayer.fontSize = bounds.size.width
-        shapeLayer.frame = emojiRect
+        print(emojiRect)
+        print(previousHandFrame)
+        print(updateAreaSize.description)
+        print("------------------")
+        shapeLayer.frame = updateAreaSize ? emojiRect : previousHandFrame
+        previousHandFrame = shapeLayer.frame
+        print(shapeLayer.frame)
         return shapeLayer
     }
 }

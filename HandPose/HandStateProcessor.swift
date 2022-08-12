@@ -30,6 +30,7 @@ enum HandPose {
     case callMeHand
     case indexPointing
     case fist
+    case nothing
     
     var stringEmoji: String {
         switch self {
@@ -47,6 +48,8 @@ enum HandPose {
             return "☝️"
         case .fist:
             return "✊"
+        case .nothing:
+            return ""
         }
     }
 }
@@ -62,6 +65,10 @@ struct HandStateProcessor: CustomStringConvertible {
     var littleState: FingerPositionState
     var thumbState: FingerPositionState
     
+    var areFingerExtended: Bool {
+        middleState == .extended
+    }
+    
     init(handPoints: HandPointsBuilder) {
         self.indexState = getFingerState(tipPoint: handPoints.indexFinger?.tipPoint, palmArea: handPoints.getPalmArea())
         self.middleState = getFingerState(tipPoint: handPoints.middleFinger?.tipPoint, palmArea: handPoints.getPalmArea())
@@ -70,24 +77,24 @@ struct HandStateProcessor: CustomStringConvertible {
         self.thumbState = getFingerState(tipPoint: handPoints.thumbFinger?.tipPoint, palmArea: handPoints.getPalmArea())
     }
     
-    func getEmoji() -> String {
+    func getEmoji() -> HandPose {
         switch (thumbState, indexState, middleState, ringState, littleState) {
         case (.extended, .extended, .extended, .extended, .extended):
-            return "✋🏻"
+            return .openHand
         case (.close, .close, .close, .close, .close):
-            return "✊🏻"
+            return .fist
         case (.extended, .extended, .close, .close, .extended):
-            return "🤟🏻"
+            return .loveYouGesture
         case (.close, .extended, .close, .close, .extended):
-            return "🤘🏻"
+            return .signOfHornGesture
         case (.close, .extended, .extended, .close, .close):
-            return "✌🏻"
+            return .victoryHand
         case (.extended, .close, .close, .close, .extended):
-            return "🤙🏻"
+            return .callMeHand
         case (.close, .extended, .close, .close, .close):
-            return "☝🏻"
+            return .indexPointing
         default:
-            return ""
+            return .nothing
         }
     }
 }
