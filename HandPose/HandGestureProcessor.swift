@@ -96,5 +96,22 @@ extension CGPoint {
 
         return p.contains(self)
     }
+    
+    func isInsidePolygon(vertices: [CGPoint]) -> Bool {
+            guard vertices.count > 0 else { return false }
+            var i = 0, j = vertices.count - 1, c = false, vi: CGPoint, vj: CGPoint
+            while true {
+                guard i < vertices.count else { break }
+                vi = vertices[i]
+                vj = vertices[j]
+                if (vi.y > y) != (vj.y > y) &&
+                    x < (vj.x - vi.x) * (y - vi.y) / (vj.y - vi.y) + vi.x {
+                    c = !c
+                }
+                j = i
+                i += 1
+            }
+            return c
+        }
 }
 
