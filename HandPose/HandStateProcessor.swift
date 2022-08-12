@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import UIKit
 
 enum FingerPositionState {
@@ -51,7 +52,7 @@ enum HandPose {
     }
 }
 
-struct HandStateProcessor: CustomStringConvertible {
+class HandStateProcessor: CustomStringConvertible {
     var description: String {
         "Index: \(indexState), middle \(middleState), ring \(ringState), little \(littleState), thumb \(thumbState)"
     }
@@ -62,12 +63,23 @@ struct HandStateProcessor: CustomStringConvertible {
     var littleState: FingerPositionState
     var thumbState: FingerPositionState
     
-    init(handPoints: HandPointsBuilder) {
+    var handStateResult: PassthroughSubject<HandPose, Never> = .init()
+    
+    init() {
+        self.indexState = .close
+        self.middleState = .close
+        self.ringState = .close
+        self.littleState = .close
+        self.thumbState = .close
+    }
+    
+    func updatePoints(handPoints: HandPointsBuilder) {
         self.indexState = getFingerState(tipPoint: handPoints.indexFinger?.tipPoint, palmArea: handPoints.getPalmArea())
         self.middleState = getFingerState(tipPoint: handPoints.middleFinger?.tipPoint, palmArea: handPoints.getPalmArea())
         self.ringState = getFingerState(tipPoint: handPoints.ringFinger?.tipPoint, palmArea: handPoints.getPalmArea())
         self.littleState = getFingerState(tipPoint: handPoints.littleFinger?.tipPoint, palmArea: handPoints.getPalmArea())
         self.thumbState = getFingerState(tipPoint: handPoints.thumbFinger?.tipPoint, palmArea: handPoints.getPalmArea())
+        self.handStateResult.send(getHandPose())
     }
     
     func getHandPose() -> HandPose {
@@ -86,12 +98,12 @@ struct HandStateProcessor: CustomStringConvertible {
         }
         return .openHand
     }
-}
-
-func getFingerState(tipPoint: CGPoint?, palmArea: [CGPoint]) -> FingerPositionState {
-    guard let tipPoint = tipPoint else {
-        return .extended
-    }
     
-    return tipPoint.isInsidePolygon(vertices: palmArea) ? .close : .extended
+    func getFingerState(tipPoint: CGPoint?, palmArea: [CGPoint]) -> FingerPositionState {
+        guard let tipPoint = tipPoint else {
+            return .extended
+        }
+        
+        return tipPoint.isInsidePolygon(vertices: palmArea) ? .close : .extended
+    }
 }
