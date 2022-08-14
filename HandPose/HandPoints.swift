@@ -132,9 +132,9 @@ struct HandPointsBuilder {
     }
     
     func getHandArea() -> HandArea {        
-        return HandArea(thumbFinger: thumbFinger?.tipPoint,
-                        middleFinger: middleFinger?.tipPoint,
-                        littleFinger: littleFinger?.tipPoint,
+        return HandArea(thumbFinger: thumbFinger?.mcpPoint,
+                        middleFinger: middleFinger?.mcpPoint,
+                        littleFinger: littleFinger?.mcpPoint,
                         wrist: wrist?.point)
     }
 }

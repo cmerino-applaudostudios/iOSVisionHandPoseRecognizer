@@ -121,7 +121,8 @@ extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
                 self.cameraView.showHandArea(handPoints.getHandArea(),
                                              color: .red,
                                              emoji: self.handPose,
-                                             updateAreaSize: self.handStateProcessor.isMiddleFingerExtended)
+                                             updateAreaSize: self.handStateProcessor.isMiddleFingerExtended,
+                                             mustChangeWidth: self.handStateProcessor.mustChangeWidth)
             }
         } catch {
             cameraFeedSession?.stopRunning()

@@ -72,6 +72,10 @@ class HandStateProcessor: CustomStringConvertible {
         middleState == .extended
     }
     
+    var mustChangeWidth: Bool {
+        thumbState == .extended && littleState == .extended
+    }
+    
     init() {
         self.indexState = .close
         self.middleState = .close
