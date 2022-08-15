@@ -89,7 +89,7 @@ class HandStateProcessor: CustomStringConvertible {
         self.middleState = getFingerState(tipPoint: handPoints.middleFinger?.tipPoint, palmArea: handPoints.getPalmArea())
         self.ringState = getFingerState(tipPoint: handPoints.ringFinger?.tipPoint, palmArea: handPoints.getPalmArea())
         self.littleState = getFingerState(tipPoint: handPoints.littleFinger?.tipPoint, palmArea: handPoints.getPalmArea())
-        self.thumbState = getFingerState(tipPoint: handPoints.thumbFinger?.tipPoint, palmArea: handPoints.getPalmArea())
+        self.thumbState = getThumState(tipPoint: handPoints.thumbFinger?.tipPoint, fingerPoints: handPoints.getFingerPoints())
         self.handStateResult.send(getHandPose())
     }
     
@@ -120,5 +120,22 @@ class HandStateProcessor: CustomStringConvertible {
         }
         
         return tipPoint.isInsidePolygon(vertices: palmArea) ? .close : .extended
+    }
+    
+    func getThumState(tipPoint: CGPoint?, fingerPoints: [CGPoint]) -> FingerPositionState {
+        guard let tipPoint = tipPoint else {
+            return .extended
+        }
+        
+        var state: FingerPositionState = .extended
+        
+        for index in 0..<fingerPoints.count {
+            if tipPoint.distance(from: fingerPoints[index]) < 40.0 {
+                state = .close
+                break
+            }
+        }
+        
+        return state
     }
 }

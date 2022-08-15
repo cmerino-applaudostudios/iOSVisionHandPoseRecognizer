@@ -131,11 +131,22 @@ struct HandPointsBuilder {
         return points.compactMap { $0 }
     }
     
-    func getHandArea() -> HandArea {        
+    func getHandArea() -> HandArea {
         return HandArea(thumbFinger: thumbFinger?.mcpPoint,
                         middleFinger: middleFinger?.mcpPoint,
                         littleFinger: littleFinger?.mcpPoint,
                         wrist: wrist?.point)
+    }
+    
+    func getFingerPoints() -> [CGPoint] {
+        var points: [CGPoint] = []
+        
+        points.append(contentsOf: indexFinger?.getAllFingerPoints() ?? [])
+        points.append(contentsOf: middleFinger?.getAllFingerPoints() ?? [])
+        points.append(contentsOf: ringFinger?.getAllFingerPoints() ?? [])
+        points.append(contentsOf: littleFinger?.getAllFingerPoints() ?? [])
+        
+        return points
     }
 }
 
