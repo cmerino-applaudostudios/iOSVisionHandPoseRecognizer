@@ -57,6 +57,17 @@ struct FingerPoints {
     }
 }
 
+struct HandArea {
+    var thumbFinger: CGPoint?
+    var middleFinger: CGPoint?
+    var littleFinger: CGPoint?
+    var wrist: CGPoint?
+    
+    func getArrayPoints() -> [CGPoint?] {
+        [thumbFinger, middleFinger, littleFinger, wrist]
+    }
+}
+
 extension FingerPoints {
     init(with recognizedPoints: [VNHumanHandPoseObservation.JointName : VNRecognizedPoint],
          translatedToLayer layer: AVCaptureVideoPreviewLayer, fingerName: FingerName) {
@@ -118,6 +129,13 @@ struct HandPointsBuilder {
         ])
         
         return points.compactMap { $0 }
+    }
+    
+    func getHandArea() -> HandArea {        
+        return HandArea(thumbFinger: thumbFinger?.mcpPoint,
+                        middleFinger: middleFinger?.mcpPoint,
+                        littleFinger: littleFinger?.mcpPoint,
+                        wrist: wrist?.point)
     }
 }
 

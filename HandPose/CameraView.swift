@@ -13,6 +13,11 @@ class CameraView: UIView {
 
     private var overlayLayer = CAShapeLayer()
     private var pointsPath = UIBezierPath()
+    private var detectionOverlay = CAShapeLayer()
+    private var previousHandFrame = CGRect()
+    private var handWidth: CGFloat = 0
+    private var handHeight: CGFloat = 0
+    private var yMiddleFinger: CGFloat = 0
 
     var previewLayer: AVCaptureVideoPreviewLayer {
         return layer as! AVCaptureVideoPreviewLayer
@@ -41,6 +46,7 @@ class CameraView: UIView {
 
     private func setupOverlay() {
         previewLayer.addSublayer(overlayLayer)
+        previewLayer.addSublayer(detectionOverlay)
     }
     
     func showPoints(_ points: [CGPoint], color: UIColor) {
@@ -54,5 +60,45 @@ class CameraView: UIView {
         CATransaction.setDisableActions(true)
         overlayLayer.path = pointsPath.cgPath
         CATransaction.commit()
+    }
+    
+    func showHandArea(_ points: HandArea, color: UIColor, emoji: HandPose, updateAreaSize: Bool, mustChangeWidth: Bool) {
+        CATransaction.begin()
+        detectionOverlay.sublayers = nil
+        let totalHeight = (points.middleFinger?.y ?? 0) - ((points.middleFinger?.y ?? 0) * 0.3)
+        let totalWidth = (points.thumbFinger?.x ?? 0) + ((points.thumbFinger?.x ?? 0) * 0.3)
+        handWidth = mustChangeWidth ? CGFloat(abs(Int(totalWidth) - Int(points.littleFinger?.x ?? 0))) : handWidth
+        handHeight =  updateAreaSize ? CGFloat(abs(Int(points.wrist?.y ?? 0) - Int(totalHeight))) : handHeight
+        let xShapeLayer = Int(points.thumbFinger?.x ?? 0) > Int(points.littleFinger?.x ?? 0) ? points.littleFinger?.x : points.thumbFinger?.x
+        yMiddleFinger = updateAreaSize ? totalHeight : yMiddleFinger
+        let shapeLayer = createTextLayer(CGRect(x: xShapeLayer ?? 0, y: yMiddleFinger, width: handWidth, height: handHeight), with: emoji, updateAreaSize: updateAreaSize)
+        let handAreaLayer = createRoundedRectLayer(CGRect(x: xShapeLayer ?? 0, y: totalHeight, width: handWidth, height: handHeight))
+        detectionOverlay.addSublayer(shapeLayer)
+        detectionOverlay.addSublayer(handAreaLayer)
+        CATransaction.commit()
+    }
+    
+    // This fuction create the rectangle
+    func createRoundedRectLayer(_ bounds: CGRect) -> CALayer {
+        let shapeLayer = CALayer()
+        shapeLayer.bounds = previousHandFrame
+        shapeLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
+        shapeLayer.name = "Detected Hand"
+        shapeLayer.backgroundColor = CGColor(colorSpace: CGColorSpaceCreateDeviceRGB(), components: [1.0, 1.0, 0.2, 0.4])
+        shapeLayer.cornerRadius = 7
+        return shapeLayer
+    }
+    
+    // This fuction create the text layer that contains the emoji
+    func createTextLayer(_ bounds: CGRect, with emoji: HandPose, updateAreaSize: Bool) -> CATextLayer {
+        let shapeLayer = CATextLayer()
+        let emojiRect = updateAreaSize ? CGRect(origin: CGPoint(x: bounds.origin.x, y: bounds.origin.y - 50), size: CGSize(width: bounds.size.width, height: bounds.size.height + 50)) : previousHandFrame
+        shapeLayer.string = emoji.stringEmoji
+        shapeLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
+        shapeLayer.fontSize = emojiRect.size.width
+        print(updateAreaSize.description)
+        shapeLayer.frame = emojiRect
+        previousHandFrame = shapeLayer.frame
+        return shapeLayer
     }
 }

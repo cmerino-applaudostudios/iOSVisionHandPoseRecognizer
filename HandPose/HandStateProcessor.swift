@@ -31,6 +31,7 @@ enum HandPose {
     case callMeHand
     case indexPointing
     case fist
+    case nothing
     
     var stringEmoji: String {
         switch self {
@@ -48,6 +49,8 @@ enum HandPose {
             return "☝️"
         case .fist:
             return "✊"
+        case .nothing:
+            return ""
         }
     }
 }
@@ -64,6 +67,14 @@ class HandStateProcessor: CustomStringConvertible {
     var thumbState: FingerPositionState
     
     var handStateResult: PassthroughSubject<HandPose, Never> = .init()
+    
+    var isMiddleFingerExtended: Bool {
+        middleState == .extended
+    }
+    
+    var mustChangeWidth: Bool {
+        thumbState == .extended && littleState == .extended
+    }
     
     init() {
         self.indexState = .close
@@ -83,20 +94,24 @@ class HandStateProcessor: CustomStringConvertible {
     }
     
     func getHandPose() -> HandPose {
-        if indexState.isClose && middleState.isClose && ringState.isClose && littleState.isClose && thumbState.isClose {
+        switch (thumbState, indexState, middleState, ringState, littleState) {
+        case (.extended, .extended, .extended, .extended, .extended):
+            return .openHand
+        case (.close, .close, .close, .close, .close):
             return .fist
-        } else if thumbState.isExtended && indexState.isExtended && middleState.isClose && ringState.isClose && littleState.isExtended {
+        case (.extended, .extended, .close, .close, .extended):
             return .loveYouGesture
-        } else if thumbState.isClose && indexState.isExtended && middleState.isExtended && ringState.isClose && littleState.isClose {
-            return .victoryHand
-        } else if thumbState.isClose && indexState.isExtended && middleState.isClose && ringState.isClose && littleState.isExtended {
+        case (.close, .extended, .close, .close, .extended):
             return .signOfHornGesture
-        } else if thumbState.isExtended && indexState.isClose && middleState.isClose && ringState.isClose && littleState.isExtended {
+        case (.close, .extended, .extended, .close, .close):
+            return .victoryHand
+        case (.extended, .close, .close, .close, .extended):
             return .callMeHand
-        } else if thumbState.isClose && indexState.isExtended && middleState.isClose && ringState.isClose && littleState.isClose {
+        case (.close, .extended, .close, .close, .close):
             return .indexPointing
+        default:
+            return .nothing
         }
-        return .openHand
     }
     
     func getFingerState(tipPoint: CGPoint?, palmArea: [CGPoint]) -> FingerPositionState {
