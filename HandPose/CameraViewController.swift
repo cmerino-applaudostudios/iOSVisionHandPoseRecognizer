@@ -13,6 +13,7 @@ import Combine
 class CameraViewController: UIViewController {
     
     private var cameraView: CameraView { view as! CameraView }
+    private var showEmojiSwitchView = UISwitch()
     
     private let videoDataOutputQueue = DispatchQueue(label: "CameraFeedDataOutput", qos: .userInteractive)
     private var cameraFeedSession: AVCaptureSession?
@@ -37,6 +38,7 @@ class CameraViewController: UIViewController {
         view.layer.addSublayer(drawOverlay)
         handPoseRequest.maximumHandCount = 1
         bindProcessor()
+        setUpSwitch()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -66,6 +68,18 @@ class CameraViewController: UIViewController {
                 // Debug
                 print("\(value.stringEmoji)")
             }).store(in: &cancellables)
+    }
+    
+    private func setUpSwitch() {
+        showEmojiSwitchView.setOn(false, animated: true)
+        showEmojiSwitchView.addTarget(self, action: #selector(updateSwitch), for: .valueChanged)
+        showEmojiSwitchView.frame = CGRect(x: 40, y: 60, width: 50, height: 50)
+        
+        self.view.addSubview(showEmojiSwitchView)
+    }
+    
+    @objc func updateSwitch() {
+        cameraView.showEmojiIf(switchIsActive: showEmojiSwitchView.isOn)
     }
     
     func setupAVSession() throws {
