@@ -132,10 +132,10 @@ extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
                 let handPoints = HandPointsBuilder(with: observation, translateTo: previewLayer)
                 self.handStateProcessor.updatePoints(handPoints: handPoints)
                 self.cameraView.showPoints(handPoints.getAllHandPoints(), color: .green)
-                self.cameraView.showHandArea(handPoints.getHandArea(),
+                self.cameraView.showHandArea(handPoints,
                                              color: .red,
                                              emoji: self.handPose,
-                                             updateAreaSize: self.handStateProcessor.isMiddleFingerExtended,
+                                             updateAreaSize: handPoints.shouldUpdateHeight,
                                              mustChangeWidth: self.handStateProcessor.mustChangeWidth)
             }
         } catch {

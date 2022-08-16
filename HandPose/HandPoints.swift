@@ -101,6 +101,41 @@ struct HandPointsBuilder {
     var littleFinger: FingerPoints?
     var wrist: WristPoint?
     
+    var handTotalHeight: CGFloat {
+        guard let wristY = wrist?.point?.y, let middleFingerY = middleFinger?.tipPoint?.y, let middleFingerMCY = middleFinger?.mcpPoint?.y else {
+            return 0.0
+        }
+        
+        return CGFloat(abs(Float(middleFingerY - middleFingerMCY)) + abs(Float(middleFingerMCY - wristY)))
+    }
+    
+    var handTotalWidth: CGFloat {
+        guard let littleFingerMCX = littleFinger?.mcpPoint?.x, let littleFingerTipX = littleFinger?.tipPoint?.x,
+              let thumbFingerMCX = thumbFinger?.mcpPoint?.x, let thumbFingerTipX = thumbFinger?.tipPoint?.x else {
+            return 0.0
+        }
+        
+        return CGFloat(abs(Float(littleFingerTipX - littleFingerMCX)) +
+                       abs(Float(littleFingerMCX - thumbFingerMCX)) +
+                       abs(Float(thumbFingerMCX - thumbFingerTipX)))
+    }
+    
+    var handYPoint: CGFloat {
+        let tipPoints: [CGFloat] = [indexFinger?.tipPoint?.y, middleFinger?.tipPoint?.y, ringFinger?.tipPoint?.y, littleFinger?.tipPoint?.y]
+            .compactMap { $0 }
+        
+        return tipPoints.min() ?? 0.0
+    }
+    
+    var shouldUpdateHeight: Bool {
+        middleFinger?.tipPoint?.isPointNearOf(points: [middleFinger?.mcpPoint, middleFinger?.dipPoint].compactMap { $0 }) ?? false
+    }
+    
+    var shouldUpdateWidth: Bool {
+        return !(thumbFinger?.tipPoint?.isPointNearOf(points: getFingerPoints()) ?? false) &&
+        (littleFinger?.tipPoint?.isPointNearOf(points: [littleFinger?.mcpPoint, littleFinger?.dipPoint].compactMap {$0}) ?? false)
+    }
+    
     func getAllHandPoints() -> [CGPoint] {
         var points: [CGPoint] = []
         
