@@ -96,7 +96,6 @@ class CameraView: UIView {
         shapeLayer.string = emoji.stringEmoji
         shapeLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
         shapeLayer.fontSize = emojiRect.size.width
-        print(updateAreaSize.description)
         shapeLayer.frame = emojiRect
         previousHandFrame = shapeLayer.frame
         return shapeLayer

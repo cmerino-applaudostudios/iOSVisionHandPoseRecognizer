@@ -85,11 +85,27 @@ class HandStateProcessor: CustomStringConvertible {
     }
     
     func updatePoints(handPoints: HandPointsBuilder) {
-        self.indexState = getFingerState(tipPoint: handPoints.indexFinger?.tipPoint, palmArea: handPoints.getPalmArea())
-        self.middleState = getFingerState(tipPoint: handPoints.middleFinger?.tipPoint, palmArea: handPoints.getPalmArea())
-        self.ringState = getFingerState(tipPoint: handPoints.ringFinger?.tipPoint, palmArea: handPoints.getPalmArea())
-        self.littleState = getFingerState(tipPoint: handPoints.littleFinger?.tipPoint, palmArea: handPoints.getPalmArea())
-        self.thumbState = getFingerState(tipPoint: handPoints.thumbFinger?.tipPoint, palmArea: handPoints.getPalmArea())
+        self.indexState = getFingerState(tipPoint: handPoints.indexFinger?.tipPoint,
+                                         palmArea: handPoints.getPalmArea(),
+                                         otherEvaluationPoints: [handPoints.indexFinger?.mcpPoint, handPoints.indexFinger?.dipPoint]
+            .compactMap {$0})
+        
+        self.middleState = getFingerState(tipPoint: handPoints.middleFinger?.tipPoint,
+                                          palmArea: handPoints.getPalmArea(),
+                                          otherEvaluationPoints: [handPoints.middleFinger?.mcpPoint, handPoints.middleFinger?.dipPoint]
+            .compactMap {$0})
+        
+        self.ringState = getFingerState(tipPoint: handPoints.ringFinger?.tipPoint,
+                                        palmArea: handPoints.getPalmArea(),
+                                        otherEvaluationPoints: [handPoints.ringFinger?.mcpPoint, handPoints.ringFinger?.dipPoint]
+            .compactMap {$0})
+        
+        self.littleState = getFingerState(tipPoint: handPoints.littleFinger?.tipPoint,
+                                          palmArea: handPoints.getPalmArea(),
+                                          otherEvaluationPoints: [handPoints.littleFinger?.mcpPoint, handPoints.littleFinger?.dipPoint]
+            .compactMap {$0})
+        
+        self.thumbState = getThumState(tipPoint: handPoints.thumbFinger?.tipPoint, fingerPoints: handPoints.getFingerPoints())
         self.handStateResult.send(getHandPose())
     }
     
@@ -114,11 +130,19 @@ class HandStateProcessor: CustomStringConvertible {
         }
     }
     
-    func getFingerState(tipPoint: CGPoint?, palmArea: [CGPoint]) -> FingerPositionState {
+    func getFingerState(tipPoint: CGPoint?, palmArea: [CGPoint], otherEvaluationPoints: [CGPoint]) -> FingerPositionState {
         guard let tipPoint = tipPoint else {
             return .extended
         }
         
-        return tipPoint.isInsidePolygon(vertices: palmArea) ? .close : .extended
+        return (tipPoint.isInsidePolygon(vertices: palmArea) || tipPoint.isPointNearOf(points: otherEvaluationPoints, minimunDistance: 20)) ? .close : .extended
+    }
+    
+    func getThumState(tipPoint: CGPoint?, fingerPoints: [CGPoint]) -> FingerPositionState {
+        guard let tipPoint = tipPoint else {
+            return .extended
+        }
+        
+        return tipPoint.isPointNearOf(points: fingerPoints) ? .close : .extended
     }
 }
