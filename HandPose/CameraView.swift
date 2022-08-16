@@ -18,6 +18,7 @@ class CameraView: UIView {
     private var handWidth: CGFloat = 0
     private var handHeight: CGFloat = 0
     private var yMiddleFinger: CGFloat = 0
+    private var isShowingEmoji: Bool = false
 
     var previewLayer: AVCaptureVideoPreviewLayer {
         return layer as! AVCaptureVideoPreviewLayer
@@ -49,6 +50,10 @@ class CameraView: UIView {
         previewLayer.addSublayer(detectionOverlay)
     }
     
+    func showEmojiIf(switchIsActive: Bool) {
+        isShowingEmoji = switchIsActive
+    }
+    
     func showPoints(_ points: [CGPoint], color: UIColor) {
         pointsPath.removeAllPoints()
         for point in points {
@@ -72,21 +77,10 @@ class CameraView: UIView {
         let xShapeLayer = Int(points.thumbFinger?.x ?? 0) > Int(points.littleFinger?.x ?? 0) ? points.littleFinger?.x : points.thumbFinger?.x
         yMiddleFinger = updateAreaSize ? totalHeight : yMiddleFinger
         let shapeLayer = createTextLayer(CGRect(x: xShapeLayer ?? 0, y: yMiddleFinger, width: handWidth, height: handHeight), with: emoji, updateAreaSize: updateAreaSize)
-        let handAreaLayer = createRoundedRectLayer(CGRect(x: xShapeLayer ?? 0, y: totalHeight, width: handWidth, height: handHeight))
-        detectionOverlay.addSublayer(shapeLayer)
-        detectionOverlay.addSublayer(handAreaLayer)
+        if isShowingEmoji {
+            detectionOverlay.addSublayer(shapeLayer)
+        }
         CATransaction.commit()
-    }
-    
-    // This fuction create the rectangle
-    func createRoundedRectLayer(_ bounds: CGRect) -> CALayer {
-        let shapeLayer = CALayer()
-        shapeLayer.bounds = previousHandFrame
-        shapeLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
-        shapeLayer.name = "Detected Hand"
-        shapeLayer.backgroundColor = CGColor(colorSpace: CGColorSpaceCreateDeviceRGB(), components: [1.0, 1.0, 0.2, 0.4])
-        shapeLayer.cornerRadius = 7
-        return shapeLayer
     }
     
     // This fuction create the text layer that contains the emoji
